@@ -1,4 +1,4 @@
-Данный форк Apache miNiFi 0.6.0-SNAPSHOT объявляем stable. И эту версию используем к установке у клиентов.
+Данный форк Apache miNiFi 0.6.0-SNAPSHOT (по состоянию на 28.02.2020) объявляем stable. И эту версию используем к установке у клиентов.
 
 [Инструкция по сборке на CentOS](#build-minifi-from-source-for-centos)
 
