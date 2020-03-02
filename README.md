@@ -1,3 +1,7 @@
+Данный форк Apache miNiFi 0.6.0-SNAPSHOT объявляем stable. И эту версию используем к установке у клиентов.
+
+[Инструкция по сборке на CentOS](#build-minifi-from-source-for-centos)
+
 <!--
   Licensed to the Apache Software Foundation (ASF) under one or more
   contributor license agreements.  See the NOTICE file distributed with
@@ -161,3 +165,98 @@ https://bouncycastle.org/about.html
 https://jcraft.com/c-info.html
 https://www.oracle.com/us/products/export/export-regulations-345813.html
 for more details on each of these libraries cryptography features.
+
+## Build miNiFi from source for CentOS
+
+Установить Java. Добавить, например, в <home_directory>/.bashrc:
+```
+export JAVA_HOME=$(dirname $(dirname $(readlink $(readlink $(which java)))))
+```
+Выполнить
+```
+source <home_directory>/.bashrc
+```
+
+По необходимости ставим git:
+```
+yum install -y git
+```
+
+По необходимости ставим maven:
+```
+yum install -y maven
+```
+
+Проверяем версию
+```
+mvn –version
+```
+
+Если версия ниже 3.1.0, то берём с [сайта последнюю версию](https://downloads.apache.org/maven/maven-3/). Например, для 3.6.3:
+```
+wget https://www-us.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz -P /tmp
+tar xf /tmp/apache-maven-3.6.3-bin.tar.gz -C /opt
+ln -s /opt/apache-maven-3.6.3 /opt/maven
+```
+
+Создаём или правим файл /etc/profile.d/maven.sh:
+```
+export JAVA_HOME=/usr/lib/jvm/jre-openjdk
+export M2_HOME=/opt/maven
+export MAVEN_HOME=/opt/maven
+export PATH=${M2_HOME}/bin:${PATH}
+```
+
+Выполняем
+```
+source /etc/profile.d/maven.sh
+```
+
+И снова проверяем версию.
+Если используется прокси, то для работы maven необходимо прописать в конфигурационный файл <home_directory>/.m2/settings.xml следующее, заполнив поля host, username, password и nonProxyHosts:
+
+```
+<settings>
+…
+<proxies>
+ <!-- Proxy for HTTP -->
+ <proxy>
+  <id>1</id>
+  <active>true</active>
+  <protocol>http</protocol>
+  <username></username>
+  <password></password>
+  <host>proxy.dmr.local</host>
+  <port>3128</port>
+  <nonProxyHosts>local.net</nonProxyHosts>
+ </proxy>
+
+ <!-- Proxy for HTTPS -->
+ <proxy>
+  <id>2</id>
+  <active>true</active>
+  <protocol>https</protocol>
+  <username></username>
+  <password></password>
+  <host>proxy.dmr.local</host>
+  <port>3128</port>
+  <nonProxyHosts>local.net</nonProxyHosts>
+ </proxy>
+</proxies>
+…
+</settings>
+```
+
+Получим исходники miNiFi и приступим к сборке:
+```
+
+git clone https://github.com/otdeveloper/nifi-minifi.git
+cd nifi-minifi/
+mvn clean install
+```
+
+В процессе сборки mvn не смог почему-то выкачать commons-daemon-1.2.1-bin-windows.zip, пришлось ему помочь:
+```
+wget https://repo1.maven.org/maven2/commons-daemon/commons-daemon/1.2.1/commons-daemon-1.2.1-bin-windows.zip -P /tmp/
+```
+
